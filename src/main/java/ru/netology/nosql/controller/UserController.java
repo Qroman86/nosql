@@ -17,9 +17,21 @@ public class UserController {
 
     private final UserRepository userRepository;
 
+    // Все пользователи или фильтр по имени/возрасту
     @GetMapping
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<User> getUsers(@RequestParam(required = false) String name,
+                               @RequestParam(required = false) Integer age) {
+        List<User> result;
+        if (name != null && age == null) {
+            return userRepository.findByName(name);
+        } else if (age != null && name == null) {
+            return userRepository.findByAge(age);
+        } else if (name != null && age != null){
+            return userRepository.findByAge(age).stream().filter( u -> name.equals(u.getName())).toList();
+        }
+        else {
+            return userRepository.findAll();
+        }
     }
 
     @GetMapping("/{id}")
